@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import axios from "axios";
 import {
   View,
   Text,
@@ -7,14 +8,29 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import apiUrl from "../../common/apiUrl";
 
 const UserProfile = () => {
+  const [followers, setFollowers] = useState(-1);
   const {
     params: { item },
   } = useRoute();
   const { width } = useWindowDimensions();
   const size = width * 0.4 > 25 ? width * 0.4 : 25;
+
+  const getFollowers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${apiUrl}users/${item.login}`);
+
+      setFollowers(response.data.followers);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    getFollowers();
+  }, [getFollowers]);
 
   return (
     <View style={[styles.container, styles.mainContainer]}>
@@ -33,6 +49,9 @@ const UserProfile = () => {
       </View>
       <View style={[styles.container, styles.lowerContaienr]}>
         <Text style={styles.text}>{item.login}</Text>
+        {followers !== -1 && (
+          <Text style={styles.smallerText}>followers: {followers}</Text>
+        )}
       </View>
     </View>
   );
@@ -47,6 +66,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#222222",
   },
   text: { color: "#ffffff", fontSize: 32 },
-  upperContainer: { justifyContent: "center", alignItems: "center" },
+  smallerText: { color: "#fafafa", fontSize: 22 },
+  upperContainer: {
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginBottom: 32,
+  },
   lowerContaienr: { alignItems: "center" },
 });
