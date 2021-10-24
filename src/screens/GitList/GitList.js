@@ -5,6 +5,7 @@ import {
   FlatList,
   ActivityIndicator,
   Text,
+  Alert,
 } from "react-native";
 import axios from "axios";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,7 +22,6 @@ const SET_SEARCH = "SET_SEARCH";
 const initState = {
   search: "",
   list: [],
-  error: false,
   loading: false,
   hasMore: false,
   page: 1,
@@ -35,8 +35,6 @@ const reducer = (state, { type, payload }) => {
         list: payload,
         error: false,
       };
-    case SET_ERROR:
-      return { ...state, error: payload };
     case SET_LOADING:
       return { ...state, loading: payload };
     case SET_SEARCH:
@@ -78,7 +76,7 @@ const GitList = () => {
           });
         }
       } catch (error) {
-        dispatch({ type: SET_ERROR, payload: true });
+        Alert.alert("Error", error.message);
       } finally {
         if (!didCancel) dispatch({ type: SET_LOADING, payload: false });
       }
