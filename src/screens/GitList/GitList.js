@@ -108,18 +108,19 @@ const GitList = () => {
             <ActivityIndicator size="large" color="#5252ff" />
           </View>
         )}
-        {!loading && list.length > 0 ? (
-          <FlatList
-            contentContainerStyle={{ flexGrow: 1 }}
-            data={list}
-            keyExtractor={keyExtractor}
-            renderItem={renderItem}
-          />
-        ) : (
-          <View style={[styles.container, styles.loadingContainer]}>
-            <Text style={styles.text}>List is empty</Text>
-          </View>
-        )}
+        {!loading &&
+          (list.length > 0 ? (
+            <FlatList
+              contentContainerStyle={{ flexGrow: 1 }}
+              data={list}
+              keyExtractor={keyExtractor}
+              renderItem={renderItem}
+            />
+          ) : (
+            <View style={[styles.container, styles.loadingContainer]}>
+              <Text style={styles.text}>List is empty</Text>
+            </View>
+          ))}
       </SafeAreaView>
     </View>
   );
