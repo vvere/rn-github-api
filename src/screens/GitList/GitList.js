@@ -1,9 +1,10 @@
 import React, { useEffect, useReducer, useCallback } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList } from "react-native";
 import axios from "axios";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import apiUrl from "../../common/apiUrl";
+import GitElement from "./GitElement";
 
 const SET_LIST = "SET_LIST";
 const SET_ERROR = "SET_ERROR";
@@ -11,7 +12,7 @@ const SET_LOADING = "SET_LOADING";
 const SET_SEARCH = "SET_SEARCH";
 
 const initState = {
-  search: "",
+  search: "v",
   list: [],
   error: false,
   loading: true,
@@ -77,12 +78,22 @@ const GitList = () => {
     getList();
   }, [getList]);
 
-  console.log(list.length);
+  const keyExtractor = (item) => {
+    if (item.login) return item.login;
+    return item.id.toString();
+  };
+
+  const renderItem = useCallback(({ item }) => <GitElement item={item} />, []);
 
   return (
     <View style={[styles.container, styles.mainContainer]}>
-      <SafeAreaView style={[styles.container, styles.iosAreaContainer]}>
-        <FlatList />
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          contentContainerStyle={{ flexGrow: 1 }}
+          data={list}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+        />
       </SafeAreaView>
     </View>
   );
@@ -92,6 +103,5 @@ export default GitList;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  mainContainer: { backgroundColor: "#232323" },
-  iosAreaContainer: { justifyContent: "center", alignItems: "center" },
+  mainContainer: { backgroundColor: "#000000" },
 });
