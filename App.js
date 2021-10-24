@@ -11,7 +11,16 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: "#222222",
+            },
+            headerTitleStyle: {
+              color: "#ffffff",
+            },
+          }}
+        >
           <Stack.Screen
             name={screenNames.GitList}
             component={GitList}
@@ -20,6 +29,7 @@ export default function App() {
           <Stack.Screen
             name={screenNames.UserProfile}
             component={UserProfile}
+            options={{ title: "Profile" }}
           />
         </Stack.Navigator>
       </NavigationContainer>

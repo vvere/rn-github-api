@@ -1,10 +1,17 @@
 import React, { useEffect, useReducer, useCallback } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import axios from "axios";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import apiUrl from "../../common/apiUrl";
 import GitElement from "./GitElement";
+import SearchInput from "./SearchInput";
 
 const SET_LIST = "SET_LIST";
 const SET_ERROR = "SET_ERROR";
@@ -12,10 +19,10 @@ const SET_LOADING = "SET_LOADING";
 const SET_SEARCH = "SET_SEARCH";
 
 const initState = {
-  search: "v",
+  search: "",
   list: [],
   error: false,
-  loading: true,
+  loading: false,
   hasMore: false,
   page: 1,
 };
@@ -43,6 +50,10 @@ const GitList = () => {
   const [state, dispatch] = useReducer(reducer, initState);
   const { search, list, error, loading, hasMore } = state;
 
+  const setSearchValue = (value) => {
+    dispatch({ type: SET_SEARCH, payload: value });
+  };
+
   const getList = useCallback(async () => {
     let didCancel = false;
     if (search.trim() !== "") {
@@ -57,9 +68,13 @@ const GitList = () => {
           }),
         ]);
         if (!didCancel) {
+          const sortArrays = [
+            ...userResponse.data.items,
+            ...repoResponse.data.items,
+          ].sort((a, b) => a.id - b.id);
           dispatch({
             type: SET_LIST,
-            payload: [...userResponse.data.items, ...repoResponse.data.items],
+            payload: sortArrays,
           });
         }
       } catch (error) {
@@ -84,16 +99,27 @@ const GitList = () => {
   };
 
   const renderItem = useCallback(({ item }) => <GitElement item={item} />, []);
-
   return (
     <View style={[styles.container, styles.mainContainer]}>
       <SafeAreaView style={styles.container}>
-        <FlatList
-          contentContainerStyle={{ flexGrow: 1 }}
-          data={list}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-        />
+        <SearchInput setSearchValue={setSearchValue} search={search} />
+        {loading && (
+          <View style={[styles.container, styles.loadingContainer]}>
+            <ActivityIndicator size="large" color="#5252ff" />
+          </View>
+        )}
+        {!loading && list.length > 0 ? (
+          <FlatList
+            contentContainerStyle={{ flexGrow: 1 }}
+            data={list}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+          />
+        ) : (
+          <View style={[styles.container, styles.loadingContainer]}>
+            <Text style={styles.text}>List is empty</Text>
+          </View>
+        )}
       </SafeAreaView>
     </View>
   );
@@ -104,4 +130,6 @@ export default GitList;
 const styles = StyleSheet.create({
   container: { flex: 1 },
   mainContainer: { backgroundColor: "#000000" },
+  loadingContainer: { marginTop: 64 },
+  text: { color: "#ffffff", textAlign: "center", fontSize: 24 },
 });
